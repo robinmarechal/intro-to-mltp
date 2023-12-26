@@ -11,6 +11,9 @@
  - termination-time=2024-02-15
 
 ## Connect remote
+gcloud compute instances start clement-tntconf-demo.europe-west9-a.solutions-engineering-248511
 gcloud compute ssh clement-tntconf-demo.europe-west9-a.solutions-engineering-248511
 code tunnel
 
+## Stop instance
+sudo shutdown -h now
