@@ -24,3 +24,5 @@ Then update the package cache and install the package using:
 sudo apt install apt-transport-https
 sudo apt update
 sudo apt install code
+
+sudo code tunnel service install
