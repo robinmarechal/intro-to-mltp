@@ -56,11 +56,10 @@ module.exports = (serviceName, context) => {
                 logSpan = tracer.startSpan("log_to_loki");
             }
 
+            console.log(details.message);
             if (process.env.LOGS_TARGET) {
                 error = await toLokiServer(details);
-            } else {
-                console.log(details.message);
-            }
+            } 
 
             if (context === 'requester') {
                 // Set the status code as OK and end the span
