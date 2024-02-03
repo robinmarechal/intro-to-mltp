@@ -68,6 +68,23 @@ prometheus.scrape "agent" {
     job_name = "agent"
 }
 
+// Scrape other infrastructure
+// We use the prometheus.scrape component and give this a unique label.
+prometheus.scrape "infra" {
+    // The targets array allows us to specify which service targets to scrape from.
+    // Define the address to scrape from, and add a 'group' and 'service' label for each target.
+    targets = [
+        {"__address__" = "postgres-exporter:9187", group = "infrastructure", service = "postgres"},
+    ]
+
+    // Scrape all of these services every 15 seconds.
+    scrape_interval = "15s"
+    // Send the metrics to the prometheus remote write receiver for exporting to Mimir.
+    forward_to = [prometheus.remote_write.mimir.receiver]
+    // The job name to add to the scraped metrics.
+    job_name = "infra"
+}
+
 // Node Exporter is built in a scrapeable prometheus component, taking the place of `integrations: node_exporter:` in
 // the original Agent config file.
 // The Agent exports everything, using an empty block.
@@ -351,6 +368,27 @@ pyroscope.scrape "mythical" {
             enabled = true
             path = "/debug/pprof/heap"
             delta = false
+        }
+        profile.block { 
+            enabled = false
+        }
+        profile.goroutine { 
+            enabled = false
+        }
+        profile.mutex { 
+            enabled = false
+        }
+        profile.fgprof { 
+            enabled = false
+        }
+        profile.godeltaprof_memory { 
+            enabled = false
+        }
+        profile.godeltaprof_mutex { 
+            enabled = false
+        }
+        profile.godeltaprof_block { 
+            enabled = false
         }
     }
 
