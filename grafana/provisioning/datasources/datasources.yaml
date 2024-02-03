@@ -61,3 +61,7 @@ datasources:
       postgresVersion: 1400
     secureJsonData:
       password: mythical
+
+  - name: TestData
+    type: testdata
+    uid: testdata
