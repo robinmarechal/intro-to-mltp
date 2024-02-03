@@ -6,7 +6,7 @@ services:
   # Grafana agent batches and processes traces sent to it, generating
   # auto-logs from those traces.
   agent:
-    image: grafana/agent:v0.38.0
+    image: grafana/agent:v0.39.1
     ports:
       - "12347:12345"
       - "12348:12348"
@@ -41,7 +41,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_FEATURE_TOGGLES_ENABLE=flameGraph traceqlSearch traceQLStreaming correlations metricsSummary traceqlEditor
+      # - GF_FEATURE_TOGGLES_ENABLE=flameGraph traceqlSearch traceQLStreaming correlations metricsSummary traceqlEditor
+      - GF_FEATURE_TOGGLES_ENABLE=flameGraph traceqlSearch traceQLStreaming correlations metricsSummary traceqlEditor traceToMetrics traceToProfiles tracesEmbeddedFlameGraph flameGraphItemCollapsing
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
@@ -58,7 +59,7 @@ services:
   # A RabbitMQ queue used to send message between the requester and the server microservices.
   mythical-queue:
     image: rabbitmq:management
-    restart: always
+    restart: on-failure
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -71,13 +72,25 @@ services:
   # A postgres DB used to store data by the API server microservice.
   mythical-database:
     image: postgres:14.5
-    restart: always
+    restart: on-failure
     environment:
       POSTGRES_PASSWORD: "mythical"
     volumes:
       - "postgres:/var/lib/postgresql/data"
     ports:
       - "5432:5432"
+
+  # A postgres DB used to store data by the API server microservice.
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    restart: on-failure
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:mythical@mythical-database:5432/postgres?sslmode=disable"
+    ports:
+      - "9187:9187"
+    depends_on:
+      mythical-database:
+        condition: service_started
 
   # A microservice that makes requests to the API server microservice. Requests are also pushed onto the mythical-queue.
   mythical-requester:
@@ -165,12 +178,14 @@ services:
   # The Loki service stores logs sent to it, and takes queries from Grafana
   # to visualise those logs.
   loki:
-    image: grafana/loki:2.9.2
+    # image: grafana/loki:2.9.2
+    image: grafana/loki:2.9.4
     ports:
       - "3100:3100"
 
   mimir:
-    image: grafana/mimir:2.10.4
+    # image: grafana/mimir:2.10.4
+    image: grafana/mimir:2.11.0
     command: ["-ingester.native-histograms-ingestion-enabled=true", "-config.file=/etc/mimir.yaml"]
     ports:
       - "9009:9009"
@@ -183,14 +198,16 @@ services:
       - "./k6:/scripts"
     environment:
       - K6_PROMETHEUS_RW_SERVER_URL=http://mimir:9009/api/v1/push
-      - K6_DURATION=3600s
+      # - K6_DURATION=3600s
+      - K6_DURATION=7200s
       - K6_VUS=4
       - K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
-    restart: always
+    restart: on-failure
     command: ["run", "-o", "experimental-prometheus-rw", "/scripts/mythical-loadtest.js"]
 
   pyroscope:
-    image: grafana/pyroscope:1.2.0
+    # image: grafana/pyroscope:1.2.0
+    image: grafana/pyroscope:1.3.0
     ports:
       - "4040:4040"
     command: ["server"]
