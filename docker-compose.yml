@@ -203,7 +203,7 @@ services:
       - K6_VUS=4
       - K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
     restart: on-failure
-    command: ["run", "-o", "experimental-prometheus-rw", "/scripts/mythical-loadtest.js"]
+    command: ["run", "-o", "experimental-prometheus-rw", "--tag", "testid=mythical-loadtest", "/scripts/mythical-loadtest.js"]
 
   pyroscope:
     # image: grafana/pyroscope:1.2.0
