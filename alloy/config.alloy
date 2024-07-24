@@ -409,6 +409,15 @@ pyroscope.scrape "mythical" {
             path = "/debug/pprof/heap"
             delta = false
         }
+        profile.goroutine {
+            enabled = false
+        }
+        profile.mutex {
+            enabled = false
+        }
+        profile.block {
+            enabled = false
+        }
     }
 
     // Forward all scraped data to the Pyroscope exporter.
