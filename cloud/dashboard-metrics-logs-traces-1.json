@@ -193,7 +193,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum by (http_target)(rate(traces_spanmetrics_latency_sum{http_target=~\"${httpEndpoint}\",service_version=~\"${serviceVersion}\"}[1m]) / rate(traces_spanmetrics_latency_count{http_target=~\"${httpEndpoint}\",service_version=~\"${serviceVersion}\"}[1m])) * 55",
+          "expr": "sum by (beast)(rate(mythical_request_times_sum{beast=~\"${beast}\"}[1m]) / rate(mythical_request_times_count{beast=~\"${beast}\"}[1m])) * 55",
           "interval": "",
           "legendFormat": "",
           "range": true,
@@ -257,7 +257,7 @@
             "uid": "${DS_GRAFANACLOUD-EXAMPLE1-PROM}"
           },
           "exemplar": true,
-          "expr": "(sum(increase(traces_spanmetrics_calls_total{status_code=\"STATUS_CODE_ERROR\"}[1m]))/sum(increase(traces_spanmetrics_calls_total[1m]))) * 100",
+          "expr": "(sum(increase(mythical_request_times_count{status!~\"[123]..\"}[1m]))/sum(increase(mythical_request_times_count[1m]))) * 100",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -280,7 +280,7 @@
             {
               "targetBlank": true,
               "title": "Traces for Erroring Endpoint",
-              "url": "/explore?orgId=1&left={\"datasource\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\",\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"tempo\",\"uid\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\"},\"queryType\":\"traceql\",\"limit\":20,\"query\":\"{ %2Ehttp%2Etarget = \\\"${__field.labels.http_target}﻿\\\" %26%26 status = error }\"}],\"range\":{\"from\":\"now-1h\",\"to\":\"now\"}}"
+              "url": "/explore?orgId=1&left={\"datasource\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\",\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"tempo\",\"uid\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\"},\"queryType\":\"traceql\",\"limit\":20,\"query\":\"{ %2Ehttp%2Etarget = \\\"${__field.labels.beast}﻿\\\" %26%26 status = error }\"}],\"range\":{\"from\":\"now-1h\",\"to\":\"now\"}}"
             }
           ],
           "mappings": [],
@@ -330,10 +330,10 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(sum by (http_target)(increase(traces_spanmetrics_calls_total{status_code=\"STATUS_CODE_ERROR\",http_target=~\"${httpEndpoint}\",service_version=~\"${serviceVersion}\"}[5m])))/(sum by (http_target)(increase(traces_spanmetrics_calls_total{status_code!=\"\",http_target=~\"${httpEndpoint}\",service_version=~\"${serviceVersion}\"}[5m]))) * 100",
+          "expr": "(sum by (beast)(increase(mythical_request_times_count{status!~\"[123]..\",beast=~\"${beast}\"}[5m])))/(sum by (beast)(increase(mythical_request_times_count{status!=\"\",beast=~\"${beast}\"}[5m]))) * 100",
           "instant": false,
           "interval": "",
-          "legendFormat": "{{http_target}}",
+          "legendFormat": "{{beast}}",
           "range": true,
           "refId": "A"
         }
@@ -362,7 +362,7 @@
             {
               "targetBlank": true,
               "title": "Traces for Status Code/Endpoint",
-              "url": "/explore?orgId=1&left={\"datasource\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\",\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"tempo\",\"uid\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\"},\"queryType\":\"traceql\",\"limit\":20,\"query\":\"{ %2Ehttp%2Etarget = \\\"${__data.fields.http_target}﻿\\\" %26%26 %2Ehttp%2Estatus_code = ${__data.fields.http_status_code} }\"}],\"range\":{\"from\":\"now-1h\",\"to\":\"now\"}}"
+              "url": "/explore?orgId=1&left={\"datasource\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\",\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"tempo\",\"uid\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\"},\"queryType\":\"traceql\",\"limit\":20,\"query\":\"{ %2Ehttp%2Etarget = \\\"${__data.fields.beast}﻿\\\" %26%26 %2Ehttp%2Estatus_code = ${__data.fields.status} }\"}],\"range\":{\"from\":\"now-1h\",\"to\":\"now\"}}"
             }
           ],
           "mappings": [],
@@ -409,7 +409,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (http_status_code,http_target,service_version)(increase(traces_spanmetrics_calls_total{http_status_code=~\"${httpStatus}\",http_target=~\"\\\\/${httpEndpoint}\"}[10m]))",
+          "expr": "sum by (status,beast,service_version)(increase(mythical_request_times_count{status=~\"${httpStatus}\",beast=~\"${beast}\"}[10m]))",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -424,8 +424,8 @@
           "options": {
             "include": {
               "names": [
-                "http_status_code",
-                "http_target",
+                "status",
+                "beast",
                 "Value"
               ]
             }
@@ -437,7 +437,7 @@
             "fields": {},
             "sort": [
               {
-                "field": "http_status_code"
+                "field": "status"
               }
             ]
           }
@@ -467,7 +467,7 @@
           "links": [
             {
               "title": "Traces for Latencies for Method/Endpoint",
-              "url": "/explore?orgId=1&left={\"datasource\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\",\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"tempo\",\"uid\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\"},\"queryType\":\"traceql\",\"limit\":20,\"query\":\"{ %2Ehttp%2Etarget = \\\"${__data.fields.http_target}﻿﻿﻿\\\" %26%26 %2Ehttp%2Emethod = \\\"${__data.fields[\"HTTP Method\"]}\\\"  %26%26 %2Eservice%2Eversion = \\\"${__data.fields.service_version}\\\" }\"}],\"range\":{\"from\":\"now-1h\",\"to\":\"now\"}}"
+              "url": "/explore?orgId=1&left={\"datasource\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\",\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"tempo\",\"uid\":\"${DS_GRAFANACLOUD-EXAMPLE1-TRACES}\"},\"queryType\":\"traceql\",\"limit\":20,\"query\":\"{ %2Ehttp%2Etarget = \\\"${__data.fields.beast}﻿﻿﻿\\\" %26%26 %2Ehttp%2Emethod = \\\"${__data.fields[\"HTTP Method\"]}\\\"  %26%26 %2Eservice%2Eversion = \\\"${__data.fields.service_version}\\\" }\"}],\"range\":{\"from\":\"now-1h\",\"to\":\"now\"}}"
             }
           ],
           "mappings": [],
@@ -539,7 +539,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk(10, sum by (http_method,http_target,service_version)(increase(traces_spanmetrics_latency_sum{http_method=~\".+\", http_target=~\"${httpEndpoint}\",service_version=~\"${serviceVersion}\"}[1m]) / increase(traces_spanmetrics_latency_count{http_method=~\".+\", http_target=~\"${httpEndpoint}\",service_version=~\"${serviceVersion}\"}[1m])))",
+          "expr": "topk(10, sum by (method,beast,service_version)(increase(mythical_request_times_sum{method=~\".+\", beast=~\"${beast}\"}[1m]) / increase(mythical_request_times_count{method=~\".+\", beast=~\"${beast}\"}[1m])))",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -554,8 +554,8 @@
           "options": {
             "include": {
               "names": [
-                "http_method",
-                "http_target",
+                "method",
+                "beast",
                 "Value",
                 "service_version"
               ]
@@ -572,8 +572,8 @@
             "renameByName": {
               "Value": "Latency (ms)",
               "Value #A": "Average Latency",
-              "http_method": "HTTP Method",
-              "http_target": "Endpoint"
+              "method": "HTTP Method",
+              "beast": "Endpoint"
             }
           }
         }
@@ -669,7 +669,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum by (http_method,http_target)(increase(traces_spanmetrics_latency_sum{http_method=~\".+\", http_target=~\"${httpEndpoint}\",service_version=~\"${serviceVersion}\"}[10m]) / increase(traces_spanmetrics_latency_count{http_method=~\".+\", http_target=~\"${httpEndpoint}\",service_version=~\"${serviceVersion}\"}[10m]))",
+          "expr": "sum by (method,beast)(increase(mythical_request_times_sum{method=~\".+\", beast=~\"${beast}\"}[10m]) / increase(mythical_request_times_count{method=~\".+\", beast=~\"${beast}\"}[10m]))",
           "interval": "",
           "legendFormat": "",
           "range": true,
@@ -833,7 +833,7 @@
           "type": "prometheus",
           "uid": "${DS_GRAFANACLOUD-EXAMPLE1-PROM}"
         },
-        "definition": "{http_status_code!=\"\"}",
+        "definition": "{status!=\"\"}",
         "description": "HTTP Status",
         "hide": 0,
         "includeAll": true,
@@ -842,11 +842,11 @@
         "name": "httpStatus",
         "options": [],
         "query": {
-          "query": "{http_status_code!=\"\"}",
+          "query": "{status!=\"\"}",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
-        "regex": "/.*http_status_code=\"([^\"]*).*/",
+        "regex": "/.*status=\"([^\"]*).*/",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
@@ -865,20 +865,20 @@
           "type": "prometheus",
           "uid": "${DS_GRAFANACLOUD-EXAMPLE1-PROM}"
         },
-        "definition": "{http_target=~\"(beholder|unicorn|manticore|illithid|owlbear)\"}",
+        "definition": "{beast=~\".+\"}",
         "description": "HTTP Endpont",
         "hide": 0,
         "includeAll": true,
         "label": "HTTP Endpoint",
         "multi": true,
-        "name": "httpEndpoint",
+        "name": "beast",
         "options": [],
         "query": {
-          "query": "{http_target=~\"(beholder|unicorn|manticore|illithid|owlbear)\"}",
+          "query": "{beast=~\".+\"}",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
-        "regex": "/.*http_target=\"([^\"]*).*/",
+        "regex": "/.*beast=\"([^\"]*).*/",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
