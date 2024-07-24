@@ -196,6 +196,8 @@ const logUtils = require('./logging')('mythical-server', 'server');
         const currentSpan = api.trace.getSpan(api.context.active());
         const spanContext = currentSpan.spanContext();
         const traceId = spanContext.traceId;
+        
+        currentSpan.setAttribute(spanTag, endpoint);
 
         let metricBody = {
             labels: {
@@ -280,6 +282,8 @@ const logUtils = require('./logging')('mythical-server', 'server');
         const spanContext = currentSpan.spanContext();
         const traceId = spanContext.traceId;
 
+        currentSpan.setAttribute(spanTag, endpoint);
+        
         let metricBody = {
             labels: {
                 method: 'DELETE',
